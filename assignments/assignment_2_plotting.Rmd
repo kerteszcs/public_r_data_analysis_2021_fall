@@ -20,6 +20,9 @@ You will have to create 3 plots based on the datasets and instructions detailed 
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(tidytuesdayR)
+library(forcats)
+library(scales)
+library(viridis)
 ```
 
 ## Task 1: Climbing expeditions
@@ -31,12 +34,46 @@ The 2020-09-22 TidyTueday datasets are about climbing expeditions. From the thre
 -   The bar colors use the viridis palette and light theme.
 
 ```{r}
+tuesdata <- tidytuesdayR::tt_load(2020, week = 39)
+expeditions <- tuesdata$expeditions
 
+expeditions_clean <- expeditions %>%
+  mutate(peaks_clean = fct_lump_n(expeditions$peak_name, n = 15))
+
+
+expeditions_clean <- expeditions_clean %>%
+  mutate(peaks_clean = fct_lump_n(expeditions$peak_name, n = 15)) #level összevon,
+
+
+ expeditions_clean <- filter(expeditions_clean, peaks_clean != "Other")%>%
+   droplevels()  # other-drop
+
+ expeditions_clean <- expeditions_clean %>%
+group_by(peaks_clean) %>%
+  mutate(freq=n())%>%
+  arrange(desc(freq)) #freq változó
+  
+expeditions_clean$peaks_clean <-fct_reorder(expeditions_clean$peaks_clean, .x=expeditions_clean$freq, .desc = FALSE) #freq alapján sorba rak
+
+
+  
+ggplot(expeditions_clean, aes(x = peaks_clean, fill=season)) + 
+    geom_bar()  + 
+    coord_flip() +
+  theme_light() +
+  theme(legend.position = "bottom")+
+  scale_fill_viridis(discrete = TRUE)+
+  scale_x_discrete(name="") +
+  ggtitle("The 15 most popular peaks stacked by season of expedition")+
+  scale_y_continuous(name="Number of expeditions")
+  
+  
 ```
 
 ## Task 2: PhDs awarded
 
-The 2019-02-19 TidyTueday dataset is about phd-s awarded by year and field. There is only one dataset, it is called `phd_by_field`. Reproduce the plot below!
+The group_by(broad_field, year) %>% 
+  summarize(n_phds = sum(n_phds)) dataset is about phd-s awarded by year and field. There is only one dataset, it is called `phd_by_field`. Reproduce the plot below!
 
 Notes:
 
@@ -45,6 +82,26 @@ Notes:
 -   The line size is 1.2, the colors are from the brewer "Dark2" palette. The theme is set to minimal.
 
 ```{r}
+tuesdata_2 <- tt_load("2019-02-19")
+phd <- tuesdata_2$phd_by_field
+
+phd_field_year <- phd %>%
+    group_by(broad_field, year) %>% 
+    summarize(n_phds = sum(n_phds, na.rm=TRUE)) 
+
+ggplot(data=phd_field_year, aes(x=year, y=n_phds, colour=broad_field)) +
+  theme_light() +
+  labs(color = "Broad field")+
+  geom_line(size =1.2) +
+   scale_color_brewer(palette = "Dark2")+
+   scale_x_continuous(name="", breaks=c(2008,2010,2012,2014,2016)) +
+  scale_y_continuous(name="") +
+    ggtitle("Number of awarded PhD-s in the US by year ")
+  
+ 
+ 
+  
+  
 
 ```
 
@@ -59,5 +116,34 @@ Notes:
 -   The point size is 2, . The theme is set to light.
 
 ```{r}
+tuesdata_2 <- tt_load("2019-11-05")
+commute <- tuesdata_2$commute
+
+commute_group <- commute %>%
+     group_by(state_abb, mode, state_region) %>% 
+     summarize(n = sum(n, na.rm=TRUE))
+
+walk <- commute_group %>%
+    filter(mode == "Walk")
+
+
+bike <- commute_group %>%
+    filter(mode == "Bike") 
+
+commute_tbl <- tibble(walk$n, bike$n, walk$state_abb, walk$mode)
+
+ ggplot(commute_tbl, aes(x=walk$n, y=bike$n, colour=walk$state_region)) + 
+  geom_point() +
+   guides(color = guide_legend(override.aes = list(size = 1)))+
+   theme_light()+
+   theme(legend.title = element_blank())+
+      scale_x_continuous(trans = "log10", labels = scales::number_format(               decimal.mark = ','), name = "")+
+   scale_y_continuous(trans = "log10", labels = scales::number_format(               decimal.mark = ','), name = "") +
+   geom_text(aes(label = walk$state_abb), color="black")+
+   ggtitle("Title number of people walking vs. biking to work in each US state")
+   
+     
+ 
+   
 
 ```

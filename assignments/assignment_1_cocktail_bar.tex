@@ -1,0 +1,647 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Assignment 1: The cocktail bar (data transformation and manipulation)},
+  pdfauthor={Tamas Nagy},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{Assignment 1: The cocktail bar (data transformation and manipulation)}
+\author{Tamas Nagy}
+\date{}
+
+\begin{document}
+\maketitle
+
+\hypertarget{skills-needed-to-solve-this-assignment}{%
+\section{Skills needed to solve this
+assignment}\label{skills-needed-to-solve-this-assignment}}
+
+\begin{itemize}
+\tightlist
+\item
+  Using R and RStudio, reading data
+\item
+  Reporting using RMarkdown
+\item
+  Using Git and Github (for submitting the task)
+\item
+  Data manipulation (e.g.~dplyr, tidyr)
+\item
+  String manipulation (e.g.~stringr)
+\end{itemize}
+
+\hypertarget{background}{%
+\section{Background}\label{background}}
+
+Your Cuban uncle sets up a cocktail bar in downtown Budapest. He has a
+secret list of cocktails that he would like to serve in the bar. He asks
+you to do create a few lists and tables to set up the shop. As your
+uncle is a secret hipster, he has a dataset on Github that you can use
+for the task!
+
+\includegraphics[width=3.33333in,height=\textheight]{https://media1.tenor.com/images/57a519cffd0ad4693be3b9c94b211540/tenor.gif?itemid=5195211}
+
+Note: There are several different ways to solve these tasks, feel free
+to come up with your own.
+
+\hypertarget{read-the-data}{%
+\subsection{1. Read the data}\label{read-the-data}}
+
+Read the cocktail dataset from:
+\url{https://github.com/nthun/cocktail-balance} You can also find the
+codebook there.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cocktails <-}\StringTok{ }\KeywordTok{read_tsv}\NormalTok{(}\StringTok{"https://raw.github.com/nthun/cocktail-balance/master/cocktail_data.tsv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## -- Column specification --------------------------------------------------------
+## cols(
+##   name = col_character(),
+##   abv = col_double(),
+##   acid = col_double(),
+##   sugar = col_double(),
+##   type = col_character(),
+##   index = col_double(),
+##   instructions = col_character(),
+##   ingredients = col_character(),
+##   ncotw = col_character()
+## )
+\end{verbatim}
+
+\hypertarget{transform-the-data-table-and-clean-the-ingredient-variable}{%
+\subsection{2. Transform the data table and clean the ingredient
+variable!}\label{transform-the-data-table-and-clean-the-ingredient-variable}}
+
+The ingredients are currently in a single cell for each cocktail. It
+would be better to put them in separate rows. Also, the variable should
+be cleaned of all quantities (e.g.~1/2 oz, 2 dashes, etc.), and the
+indicator of alcohol content (e.g.~47.3\% abv). You will need to use
+this cleaned table in later tasks.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cocktails_t <-}\StringTok{ }\NormalTok{cocktails }\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{separate_rows}\NormalTok{(}\StringTok{"ingredients"}\NormalTok{, }\DataTypeTok{sep =} \StringTok{"<br>"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{separate_rows}\NormalTok{(}\StringTok{"ingredients"}\NormalTok{, }\DataTypeTok{sep =} \StringTok{"<br/>"}\NormalTok{)}
+\NormalTok{cocktails_clean <-}\StringTok{ }\NormalTok{cocktails_t }\OperatorTok{%>%}
+\StringTok{      }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{ingredients_clean =} \KeywordTok{str_remove_all}\NormalTok{(ingredients, }\StringTok{"[:digit:]"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"oz"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"drops"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"dash"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"%"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"(. abv)"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"[(]"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"[)]"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"[/]"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_remove_all}\NormalTok{(}\StringTok{"[.]"}\NormalTok{)}\OperatorTok{%>%}
+\StringTok{                      }\KeywordTok{str_squish}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{all-ingredients-in-alphabetical-order}{%
+\subsection{3. All ingredients in alphabetical
+order}\label{all-ingredients-in-alphabetical-order}}
+
+Before opening the bar, you need to find a reliable supplier that has
+all the ingredients. You need to send a list of all possible ingredients
+you will need. They don't need the quantities (i.e.~how many of these
+are needed), just the names of the ingredients.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ingredients_list <-}\StringTok{ }\NormalTok{cocktails_clean }\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{arrange}\NormalTok{(ingredients_clean)}
+\KeywordTok{unique}\NormalTok{(ingredients_list}\OperatorTok{$}\NormalTok{ingredients_clean)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "Absolut Citron vodka"                  
+##  [2] "agar-clarified grapefruit juice"       
+##  [3] "Amer Picon"                            
+##  [4] "Angostura bitters"                     
+##  [5] "apple brandy"                          
+##  [6] "Benedictine"                           
+##  [7] "blanco tequila"                        
+##  [8] "bourbon"                               
+##  [9] "bsp Fernet Branca"                     
+## [10] "bsp raspberry syrup"                   
+## [11] "Campari"                               
+## [12] "centrifuge-clarified grapefruit juice" 
+## [13] "Cherry Herring"                        
+## [14] "clarified lime juice"                  
+## [15] "clarified lime juice or champagne acid"
+## [16] "Cognac"                                
+## [17] "Cointreau"                             
+## [18] "cranberry juice"                       
+## [19] "crem de violette"                      
+## [20] "Curacao"                               
+## [21] "Demerara syrup"                        
+## [22] "Dolin dry vermouth"                    
+## [23] "Drambuie"                              
+## [24] "drop saline"                           
+## [25] "dry vermouth"                          
+## [26] "egg white"                             
+## [27] "es absinthe"                           
+## [28] "es Angostura bitters"                  
+## [29] "es champagne acid"                     
+## [30] "es orange bitters"                     
+## [31] "es Peychaud's bitters"                 
+## [32] "gin"                                   
+## [33] "grapefruit juice"                      
+## [34] "Green Chartreuse"                      
+## [35] "Grenadine"                             
+## [36] "heavy cream"                           
+## [37] "Hellfire bitters"                      
+## [38] "honey syrup"                           
+## [39] "Lairds Applejack Bottled in Bond"      
+## [40] "lemon juice"                           
+## [41] "Lillet Blanc"                          
+## [42] "lime juice"                            
+## [43] "Luxardo Maraschino"                    
+## [44] "Luxardo Marschino<b> Plymouth gin"     
+## [45] "Old Tom gin"                           
+## [46] "orange bitters"                        
+## [47] "orange juice"                          
+## [48] "Peychaud's bitters"                    
+## [49] "pisco"                                 
+## [50] "Plymouth gin"                          
+## [51] "quinine simple syrup"                  
+## [52] "raspberry syrup"                       
+## [53] "rye"                                   
+## [54] "saline solution"                       
+## [55] "Scotch"                                
+## [56] "simple"                                
+## [57] "simple syrup"                          
+## [58] "sloe gin"                              
+## [59] "sugard -proof rum"                     
+## [60] "sugared -proof rye"                    
+## [61] "sweet vermouth"                        
+## [62] "water"                                 
+## [63] "white cr<U+008F>me de cacao"           
+## [64] "white mezcal"                          
+## [65] "white rum"                             
+## [66] "Yellow Chartreuse"
+\end{verbatim}
+
+\hypertarget{number-of-unique-ingredients}{%
+\subsection{4. Number of unique
+ingredients}\label{number-of-unique-ingredients}}
+
+How many different ingredients you will need?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{n_distinct}\NormalTok{(cocktails_clean}\OperatorTok{$}\NormalTok{ingredients_clean)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 66
+\end{verbatim}
+
+\hypertarget{what-are-the-top-10-ingredients}{%
+\subsection{5. What are the top 10
+ingredients?}\label{what-are-the-top-10-ingredients}}
+
+What are the 10 most frequently used ingredients? If there are ties, you
+can list more than 10.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(cocktails_clean}\OperatorTok{$}\NormalTok{ingredients_clean),}\DataTypeTok{decreasing=}\OtherTok{TRUE}\NormalTok{)[}\DecValTok{1}\OperatorTok{:}\DecValTok{26}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##          lemon juice         simple syrup                  gin 
+##                   15                   14                   13 
+##       sweet vermouth           lime juice      saline solution 
+##                   13                   12                   10 
+##                water                  rye    Angostura bitters 
+##                   10                    8                    6 
+##               Cognac es Angostura bitters   Luxardo Maraschino 
+##                    6                    6                    6 
+##              bourbon            Cointreau            egg white 
+##                    5                    5                    5 
+##            white rum          Benedictine clarified lime juice 
+##                    5                    4                    4 
+##     Green Chartreuse          honey syrup         Plymouth gin 
+##                    4                    4                    4 
+##               Scotch              Campari              Curacao 
+##                    4                    3                    3 
+##     grapefruit juice       orange bitters 
+##                    3                    3
+\end{verbatim}
+
+\hypertarget{which-cocktails-hashave-the-most-ingredients}{%
+\subsection{6. Which cocktail(s) has/have the most
+ingredients?}\label{which-cocktails-hashave-the-most-ingredients}}
+
+Count the number of ingredients and filter all the cocktails that has
+that many.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(cocktails_clean}\OperatorTok{$}\NormalTok{name), }\DataTypeTok{decreasing=}\NormalTok{T)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##                 Blender Margarita                Carbonated Negroni 
+##                                 6                                 6 
+##                       Clover Club                   De La Louisiane 
+##                                 6                                 6 
+##                         Pink Lady                       Vieux Carre 
+##                                 6                                 6 
+##              Blender Whiskey Sour                          Brooklyn 
+##                                 5                                 5 
+##              Carbonated Margarita           Carbonated Whiskey Sour 
+##                                 5                                 5 
+##                    Champs-Elysses          Gin and Juice Centrifuge 
+##                                 5                                 5 
+##               Gin and Tonic (Dry)                Hemingway Daiquiri 
+##                                 5                                 5 
+##                         Margarita                          Martinez 
+##                                 5                                 5 
+##                         Pegu Club                      Whiskey Sour 
+##                                 5                                 5 
+##             20th Century Cocktail                          Aviation 
+##                                 4                                 4 
+##                Between the Sheets                             Bijou 
+##                                 4                                 4 
+##                        Blackthorn                  Blender Daiquiri 
+##                                 4                                 4 
+##                    Blood and Sand                      Brady Crusta 
+##                                 4                                 4 
+##                 Corpse Reviver #2 Cosmopolitan (Modern/Bastardized) 
+##                                 4                                 4 
+##                Gin and Juice Agar         Improved Whiskey Cocktail 
+##                                 4                                 4 
+##                         Jack Rose                         Last Word 
+##                                 4                                 4 
+##                        Pisco Sour                           Sidecar 
+##                                 4                                 4 
+##                         Alexander                       Bee's Knees 
+##                                 3                                 3 
+##                           Blinker                       Bobby Burns 
+##                                 3                                 3 
+##                       Brown Derby                         Chartruth 
+##                                 3                                 3 
+##                  Classic Daiquiri           Daiquiri with More Lime 
+##                                 3                                 3 
+##                 Fresh Lime Gimlet                         Gold Rush 
+##                                 3                                 3 
+##                       Hanky Panky                       Honeysuckle 
+##                                 3                                 3 
+##        Manhatan (Boubon, 45% abv)           Manhatan (Rye, 50% abv) 
+##                                 3                                 3 
+##                           Negroni                     Old Fashioned 
+##                                 3                                 3 
+##                           Old Pal                           Rob Roy 
+##                                 3                                 3 
+##                         Southside                      Widow's Kiss 
+##                                 3                                 3 
+##                        Rusty Nail 
+##                                 2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cocktails_n <-}\StringTok{ }\NormalTok{cocktails_clean }\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{group_by}\NormalTok{(name) }\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{freq=}\KeywordTok{n}\NormalTok{())}\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{arrange}\NormalTok{(}\KeywordTok{desc}\NormalTok{(freq))}
+
+\KeywordTok{unique}\NormalTok{(cocktails_n}\OperatorTok{$}\NormalTok{name)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "Pink Lady"                         "Clover Club"                      
+##  [3] "Vieux Carre"                       "De La Louisiane"                  
+##  [5] "Blender Margarita"                 "Carbonated Negroni"               
+##  [7] "Whiskey Sour"                      "Hemingway Daiquiri"               
+##  [9] "Margarita"                         "Champs-Elysses"                   
+## [11] "Pegu Club"                         "Martinez"                         
+## [13] "Brooklyn"                          "Blender Whiskey Sour"             
+## [15] "Carbonated Margarita"              "Carbonated Whiskey Sour"          
+## [17] "Gin and Tonic (Dry)"               "Gin and Juice Centrifuge"         
+## [19] "Pisco Sour"                        "Blood and Sand"                   
+## [21] "Cosmopolitan (Modern/Bastardized)" "20th Century Cocktail"            
+## [23] "Corpse Reviver #2"                 "Jack Rose"                        
+## [25] "Aviation"                          "Sidecar"                          
+## [27] "Last Word"                         "Between the Sheets"               
+## [29] "Brady Crusta"                      "Blackthorn"                       
+## [31] "Bijou"                             "Improved Whiskey Cocktail"        
+## [33] "Blender Daiquiri"                  "Gin and Juice Agar"               
+## [35] "Daiquiri with More Lime"           "Honeysuckle"                      
+## [37] "Classic Daiquiri"                  "Alexander"                        
+## [39] "Brown Derby"                       "Gold Rush"                        
+## [41] "Southside"                         "Bee's Knees"                      
+## [43] "Fresh Lime Gimlet"                 "Blinker"                          
+## [45] "Negroni"                           "Hanky Panky"                      
+## [47] "Manhatan (Boubon, 45% abv)"        "Bobby Burns"                      
+## [49] "Rob Roy"                           "Old Pal"                          
+## [51] "Manhatan (Rye, 50% abv)"           "Widow's Kiss"                     
+## [53] "Old Fashioned"                     "Chartruth"                        
+## [55] "Rusty Nail"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{max_ingredients <-}\StringTok{ }\NormalTok{cocktails_n }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{filter}\NormalTok{(freq }\OperatorTok{==}\StringTok{ }\KeywordTok{max}\NormalTok{(cocktails_n}\OperatorTok{$}\NormalTok{freq))}
+
+\KeywordTok{unique}\NormalTok{(max_ingredients}\OperatorTok{$}\NormalTok{name)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Pink Lady"          "Clover Club"        "Vieux Carre"       
+## [4] "De La Louisiane"    "Blender Margarita"  "Carbonated Negroni"
+\end{verbatim}
+
+\hypertarget{how-many-ingredients-appear-in-only-one-cocktail-rare-ingredient}{%
+\subsection{7. How many ingredients appear in only one cocktail (rare
+ingredient)?}\label{how-many-ingredients-appear-in-only-one-cocktail-rare-ingredient}}
+
+Count all cocktails with only one ingredient, and
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sort}\NormalTok{(}\KeywordTok{table}\NormalTok{(cocktails_clean}\OperatorTok{$}\NormalTok{ingredients_clean), }\DataTypeTok{decreasing =}\NormalTok{ F)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##                   Absolut Citron vodka        agar-clarified grapefruit juice 
+##                                      1                                      1 
+##                             Amer Picon                      bsp Fernet Branca 
+##                                      1                                      1 
+##                    bsp raspberry syrup  centrifuge-clarified grapefruit juice 
+##                                      1                                      1 
+##                         Cherry Herring clarified lime juice or champagne acid 
+##                                      1                                      1 
+##                        cranberry juice                       crem de violette 
+##                                      1                                      1 
+##                         Demerara syrup                     Dolin dry vermouth 
+##                                      1                                      1 
+##                               Drambuie                            drop saline 
+##                                      1                                      1 
+##                            es absinthe                      es champagne acid 
+##                                      1                                      1 
+##                      es orange bitters                  es Peychaud's bitters 
+##                                      1                                      1 
+##                            heavy cream                       Hellfire bitters 
+##                                      1                                      1 
+##       Lairds Applejack Bottled in Bond      Luxardo Marschino<b> Plymouth gin 
+##                                      1                                      1 
+##                            Old Tom gin                     Peychaud's bitters 
+##                                      1                                      1 
+##                                  pisco                   quinine simple syrup 
+##                                      1                                      1 
+##                        raspberry syrup                                 simple 
+##                                      1                                      1 
+##                               sloe gin                      sugard -proof rum 
+##                                      1                                      1 
+##                     sugared -proof rye            white cr<U+008F>me de cacao 
+##                                      1                                      1 
+##                           white mezcal                           apple brandy 
+##                                      1                                      2 
+##                         blanco tequila                           dry vermouth 
+##                                      2                                      2 
+##                              Grenadine                           Lillet Blanc 
+##                                      2                                      2 
+##                           orange juice                      Yellow Chartreuse 
+##                                      2                                      2 
+##                                Campari                                Curacao 
+##                                      3                                      3 
+##                       grapefruit juice                         orange bitters 
+##                                      3                                      3 
+##                            Benedictine                   clarified lime juice 
+##                                      4                                      4 
+##                       Green Chartreuse                            honey syrup 
+##                                      4                                      4 
+##                           Plymouth gin                                 Scotch 
+##                                      4                                      4 
+##                                bourbon                              Cointreau 
+##                                      5                                      5 
+##                              egg white                              white rum 
+##                                      5                                      5 
+##                      Angostura bitters                                 Cognac 
+##                                      6                                      6 
+##                   es Angostura bitters                     Luxardo Maraschino 
+##                                      6                                      6 
+##                                    rye                        saline solution 
+##                                      8                                     10 
+##                                  water                             lime juice 
+##                                     10                                     12 
+##                                    gin                         sweet vermouth 
+##                                     13                                     13 
+##                           simple syrup                            lemon juice 
+##                                     14                                     15
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ingredients_n <-}\StringTok{ }\NormalTok{cocktails_clean }\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{group_by}\NormalTok{(ingredients_clean) }\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{freq=}\KeywordTok{n}\NormalTok{())}\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{arrange}\NormalTok{(}\KeywordTok{desc}\NormalTok{(freq))}
+
+\NormalTok{unique_ingredients <-}\StringTok{ }\NormalTok{ingredients_n }\OperatorTok{%>%}
+\StringTok{          }\KeywordTok{filter}\NormalTok{(freq }\OperatorTok{==}\StringTok{ }\KeywordTok{min}\NormalTok{(ingredients_n}\OperatorTok{$}\NormalTok{freq))}
+\KeywordTok{n_distinct}\NormalTok{(unique_ingredients}\OperatorTok{$}\NormalTok{name)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 24
+\end{verbatim}
+
+\hypertarget{which-cocktail-has-an-ingredient-that-is-only-used-in-one-cocktail}{%
+\subsection{8. Which cocktail has an ingredient that is only used in one
+cocktail?}\label{which-cocktail-has-an-ingredient-that-is-only-used-in-one-cocktail}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{unique}\NormalTok{(unique_ingredients}\OperatorTok{$}\NormalTok{name)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "Pisco Sour"                        "Pink Lady"                        
+##  [3] "Clover Club"                       "Blood and Sand"                   
+##  [5] "Alexander"                         "Cosmopolitan (Modern/Bastardized)"
+##  [7] "20th Century Cocktail"             "Aviation"                         
+##  [9] "Last Word"                         "Blinker"                          
+## [11] "Blackthorn"                        "Hanky Panky"                      
+## [13] "Martinez"                          "Vieux Carre"                      
+## [15] "Brooklyn"                          "Rusty Nail"                       
+## [17] "De La Louisiane"                   "Blender Daiquiri"                 
+## [19] "Blender Margarita"                 "Blender Whiskey Sour"             
+## [21] "Gin and Tonic (Dry)"               "Carbonated Negroni"               
+## [23] "Gin and Juice Centrifuge"          "Gin and Juice Agar"
+\end{verbatim}
+
+\hypertarget{what-are-the-cocktails-without-rare-ingredients}{%
+\subsection{9. What are the cocktails without rare
+ingredients?}\label{what-are-the-cocktails-without-rare-ingredients}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  nonunique_ingredients <-}\StringTok{ }\NormalTok{ingredients_n }\OperatorTok{%>%}
+\StringTok{     }\KeywordTok{filter}\NormalTok{(freq }\OperatorTok{>}\StringTok{ }\DecValTok{1}\NormalTok{)}
+\KeywordTok{unique}\NormalTok{(nonunique_ingredients }\OperatorTok{$}\NormalTok{name)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "Pink Lady"                         "Clover Club"                      
+##  [3] "Whiskey Sour"                      "Gold Rush"                        
+##  [5] "Southside"                         "Bee's Knees"                      
+##  [7] "20th Century Cocktail"             "Corpse Reviver #2"                
+##  [9] "Jack Rose"                         "Aviation"                         
+## [11] "Sidecar"                           "Champs-Elysses"                   
+## [13] "Between the Sheets"                "Brady Crusta"                     
+## [15] "Blender Whiskey Sour"              "Pisco Sour"                       
+## [17] "Daiquiri with More Lime"           "Classic Daiquiri"                 
+## [19] "Fresh Lime Gimlet"                 "Margarita"                        
+## [21] "Improved Whiskey Cocktail"         "Old Fashioned"                    
+## [23] "Carbonated Margarita"              "Carbonated Whiskey Sour"          
+## [25] "Blood and Sand"                    "Pegu Club"                        
+## [27] "Negroni"                           "Blackthorn"                       
+## [29] "Hanky Panky"                       "Martinez"                         
+## [31] "Manhatan (Boubon, 45% abv)"        "Bobby Burns"                      
+## [33] "Rob Roy"                           "Vieux Carre"                      
+## [35] "Bijou"                             "Manhatan (Rye, 50% abv)"          
+## [37] "De La Louisiane"                   "Gin and Tonic (Dry)"              
+## [39] "Carbonated Negroni"                "Gin and Juice Centrifuge"         
+## [41] "Gin and Juice Agar"                "Honeysuckle"                      
+## [43] "Hemingway Daiquiri"                "Cosmopolitan (Modern/Bastardized)"
+## [45] "Last Word"                         "Blender Daiquiri"                 
+## [47] "Blender Margarita"                 "Chartruth"                        
+## [49] "Blinker"                           "Old Pal"                          
+## [51] "Brooklyn"                          "Alexander"                        
+## [53] "Brown Derby"                       "Rusty Nail"                       
+## [55] "Widow's Kiss"
+\end{verbatim}
+
+\hypertarget{create-a-cheat-sheet-for-the-bartender}{%
+\subsection{10. Create a cheat sheet for the
+bartender!}\label{create-a-cheat-sheet-for-the-bartender}}
+
+Create a matrix that shows all cocktail names as rows and all
+ingredients as columns. When a cocktail requires an ingredient, there
+should be an ``X'' in the cell, otherwise, the cell should remain empty.
+Example:
+
+Congrats, the bar is now officially open!
+
+\includegraphics[width=3.33333in,height=\textheight]{https://i.pinimg.com/originals/4e/c1/0c/4ec10c9d32b2c7c28b4b638c7f809ec5.gif}
+
+\end{document}

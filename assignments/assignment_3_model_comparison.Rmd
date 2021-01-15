@@ -38,7 +38,7 @@ To answer this research question you will __need to compare two models__ (with a
 
 # What to report
 
-As usual, before you can interpret your model, you will need to run data and model diagnostics. First, check the variables included in the more complex model (age, sex, STAI, pain catastrophizing, mindfulness, and cortisol measures as predictors, and pain as an outcome) for __coding errors__, and the model itself for __influential outliers__ (for example using Cook’s distance). Furthermore, check the final model to see if the __assumptions of linear regression hold true__, that is, __normality__ (of the residuals), __linearity__ (of the relationship), __homogeneity of variance__ (also called homoscedasticity) and that there is no excess __multicollinearity__ (“uncorrelated predictors” in Navarro’s words). If you find anything amiss during these checks, make the appropriate decision or correction and report your findings and actions in your report. 
+As usual, before you can interpret your model, you will need to run data and model diagnostics. First, check the variables included in the more complex model (age, sex, STAI, pain catastrophizing, mindfulness, and cortisol measures as predictors, and pain as an outcome) for __coding errors__, and the model itself for __influential outliers__ (for example using Cook’s distance). Furthermore, check the final model to see if the __assumptions of linear regression hold true__, that is, __normality__ (of the residuals), __linearity__ (of the relationship), __homogeneity of variance__ (also called homoscedasticity) and that there is no excess __multicollinearity__ (“uncorrelated predictors” in Navarro’s words). If you find anything amiss during these checks, make the appropriate decision or correction and report your findings and actions in?grepl your report. 
 
 __Note:__ If you do any changes, such as exclude cases, or exclude predictors from the model, you will have to re-run the above checks for your final data and model.
 
@@ -60,132 +60,232 @@ Read the dataset used in this assignment. Pay attention to the extension of the 
 
 ```{r}
 
+library(tidyverse)
+library(readxl)
+library(funModeling)
+library(Hmisc)
+library(lm.beta)
+library(car)
+
+data_3 <- read_excel("~/assignment/public_r_data_analysis_2021_fall/data/assignment_3_dataset.xlsx")
+## Data and model diagnostics 
 ```
 
-## Data and model diagnostics 
 ### Data diagnostics
 #### Descriptives of the variables
 
 Run an exploratory data analysis (EDA) to investigate the dataset.
 
 ```{r}
+glimpse(data_3)
+describe(data_3)
+freq(data_3)
+summary(data_3)
+plot_num(data_3)
+
+
 
 ```
 
 #### Correct coding errors
 
-If you find values in the dataset during the EDA, that are not correct based on the provided descriptions of the variables of the dataset please correct them here.
+I've found an extreme outlier in col. "pain", which is out of the variable's range (50). Value corrected, assuming it should have been 5. "Sex" variable has two names for female ("female", "woman"). All "woman" values were changed to "female".
+
+
 
 ```{r}
+
+summary(data_3$pain)
+
+data_3[142, 2]=5
+
+unique(data_3$sex)
+
+data_3 <- data_3 %>%
+ mutate(sex = replace(sex, sex == "woman", "female"))
+
 
 ```
 
 ### Model diagnostics
 #### Build the more complex model
 
-In order to test the more complex model for outliers and to test the assumptions first build the model.
+MODEL 1
+The first model explores the role of age and sex in the degree of experienced pain.
+Adjusted R-squared:  0.1684 
+F-statistic: 11.73 on 3 and 156 DF,  p-value: 5.665e-07
+
+MODEL 2
+In the second model I've included "mindfulness" and "IQ". 
+Adjusted R-squared:  0.199 
+F-statistic: 8.898 on 5 and 154 DF,  p-value: 1.924e-07
+Regression equation:
+y = 7.64150  + -0.09997 * x1 +  0.37517 * x2 + 0.06336 * x3 + -0.34303 * x4 + -0.00273 * 
 
 ```{r}
+model_1 = lm(pain~age + sex + STAI_trait, data_3)
+model_2=lm(pain~age + sex + STAI_trait +  mindfulness + IQ, data_3)
 
+model_1 %>%
+  summary()
+
+model_1 %>%
+lm.beta()
+
+model_1 %>%
+coef()
+
+model_1 %>%
+confint(level = 0.95)
+
+model_2 %>%
+  summary()
+
+model_2 %>%
+lm.beta()
+
+model_2 %>%
+coef()
+
+model_2 %>%
+confint(level = 0.95)
+
+
+
+anova(model_1, model_2)
 ```
 
 #### Checking for influential outliers
 
-Check for outlier values in the model.
+Outliers were identified and removed from the dataset.
 
 ```{r}
-
+model_2 %>%
+  plot(5)
+data_3 <- data_3[-c(150, 106, 57, 81), ]
 ```
 
 #### Checking assumptions
 
-Check the normality assumption.
+Plot shows normality assumption wasn't violated.
 
 ```{r}
-
+model_2 %>%
+  plot(2)
 ```
 
-Check the linearity assumption.
+According to plot linearity assumption was met.
 
 ```{r}
-
+model_2 %>%
+  plot(1)
 ```
 
-Check the homoscedasticty assumption (homogeneity of variance).
+Homoscedasticty assumption was met.
 
 ```{r}
-
+model_2 %>%
+  plot(3)
 ```
 
-Check the multicollinearity assumption.
-
-(VIF above 5), or a VIF threshold of 3 is recommended in this paper: http://onlinelibrary.wiley.com/doi/10.1111/j.2041-210X.2009.00001.x/full
-
-Some info about VIF: 
-https://statisticalhorizons.com/multicollinearity
-http://blog.minitab.com/blog/understanding-statistics/handling-multicollinearity-in-regression-analysis
+ Testing multicollinearity, VIF was found to be under 5 (even 3) for all variables.
 
 ```{r}
-
+model_2 %>%
+vif()
 ```
 
 ### Making decision based on model diagnostics
 
-If based on the assumption tests you decide to drop a predictor variable you should do that here. Create your updated model.
+"IQ" variable was dropped from the model, because it didn't show a significant effect on the target variable.
 
 ```{r}
-
+model_3 <- lm(pain~age + sex + STAI_trait +  mindfulness, data_3)
 ```
 
 #### Checking outliers of the updated model
+3 outliers were identified in the new model and removed. 
 
 ```{r}
-
+model_3 %>%
+  plot(5)
+data_3 <- data_3[-c(120, 55, 86, 107, 150),]
 ```
 
 #### Checking assumptions of the updated model
 
-Normality assumption
+Normality assumption was met.
 
 ```{r}
 
+model_3 %>%
+  plot(2)
 ```
 
-Linearity assumption
+Linearity assumption was also met.
+
+
 
 ```{r}
 
+model_3 %>%
+  plot(1)
 ```
 
-Homoscedasticty assumption (homogeneity of variance)
+Homoscedasticty assumption was met.
 
 ```{r}
 
+model_3 %>%
+  plot(3)
 ```
 
-Multicollinearity assumption
+Multicollinearity assumption was met. VIF was under 5 (and 3) for all variables.
 
 ```{r}
-
+model_3 %>%
+vif()
 ```
 
 ## Model comparison
 
-Create the simple model and get the results of the model that needs to be reported based on the What to report section.
+The simple model (model_1) explains 26,39% of the variance of the target variable. Age  and trait anxiety  had a significant effect, while gender did not. Age had positive, while anxiety negative effect on perceived pain. 
 
 ```{r}
+model_1 = lm(pain~age + sex + STAI_trait, data_3)
 
+model_1 %>%
+summary()
 ```
 
-Create the more complex model based on the results of the model diagnostics. Also, get the results that needs to be reported based on the What to report section.
+MODEL 3
+The updated complex model explained 28,47% of the variance. Comparing standardized coefficients showed that "Trait anxiety" had the most robust effect on perceived pain (beta = 0,36), followed by age (beta = -0,35) and mindfulness (beta =0,19). Sex didn't have a significant effect. Subjective feeling of pain diminished with age, grew with anxiety, and mindfulness could be interpreted as a protective factor against it.
+This final model which included the "mindfulness" variable showed improvement compared to the first one.
+Adjusted R-squared:  0.2847 
+F-statistic: 15.93 on 4 and 146 DF,  p-value: 7.685e-11
+Equation: y =  5.63803 + -0.09609  * x1 + 0.36218 * x2 + 0.09790 * x3 + -0.26248  * x4
+
+
 
 ```{r}
+model_3 <- lm(pain~age + sex + STAI_trait +  mindfulness, data_3)
+model_3 %>%
+summary()
 
+
+model_3 %>%
+lm.beta()
+
+model_3 %>%
+coef()
+
+model_3 %>%
+confint(level = 0.95)
 ```
 
-Compare the two models.
+ANOVA shows that the two models differ significantly.
 
 ```{r}
-
+anova(model_1, model_3)
 ```
 

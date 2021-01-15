@@ -1,8 +1,11 @@
 ---
-title: "Assignment 1: The cocktail bar (data transformation and manipulation)"
+title: 'Assignment 1: The cocktail bar (data transformation and manipulation)'
 author: "Tamas Nagy"
-output: html_document
-editor_options: 
+output:
+  #word_document: default
+  html_document: default
+  #pdf_document: default
+editor_options:
   chunk_output_type: console
 ---
 
@@ -14,9 +17,10 @@ editor_options:
 -   Data manipulation (e.g. dplyr, tidyr)
 -   String manipulation (e.g. stringr)
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(knitr)
 ```
 
 # Background
@@ -32,7 +36,7 @@ Note: There are several different ways to solve these tasks, feel free to come u
 Read the cocktail dataset from: <https://github.com/nthun/cocktail-balance> You can also find the codebook there.
 
 ```{r}
-
+cocktails <- read_tsv("https://raw.github.com/nthun/cocktail-balance/master/cocktail_data.tsv")
 ```
 
 ## 2. Transform the data table and clean the ingredient variable!
@@ -41,6 +45,32 @@ The ingredients are currently in a single cell for each cocktail. It would be be
 
 ```{r}
 
+cocktails_t <- cocktails %>%
+    separate_rows("ingredients", sep = "<br>") %>%
+    separate_rows("ingredients", sep = "<br/>") %>%
+    separate_rows("ingredients", sep = "<b>")%>%
+    separate_rows("ingredients", sep = "<b4/>")
+
+
+  
+cocktails_clean <- cocktails_t %>%
+     mutate(ingredients_clean = str_remove_all(ingredients, "[:digit:]") %>%
+     str_remove_all("oz") %>%
+     str_remove_all("drops") %>%
+     str_remove_all("es") %>%
+     str_remove_all("bsp") %>%
+     str_remove_all("cr\u008fme") %>%
+     str_remove_all("dash") %>%
+     str_remove_all("%") %>%
+     str_remove_all("(. abv)") %>%
+     str_remove_all("[(]")%>%
+     str_remove_all("[)]")%>%
+     str_remove_all("[/]") %>%
+     str_remove_all("[.]")%>%
+     str_squish()) 
+  
+  kable(str_to_lower(cocktails_clean$ingredients_clean))
+
 ```
 
 ## 3. All ingredients in alphabetical order
@@ -48,7 +78,11 @@ The ingredients are currently in a single cell for each cocktail. It would be be
 Before opening the bar, you need to find a reliable supplier that has all the ingredients. You need to send a list of all possible ingredients you will need. They don't need the quantities (i.e. how many of these are needed), just the names of the ingredients.
 
 ```{r}
-
+ingredients_list <- cocktails_clean %>%
+     arrange(ingredients_clean)
+unique(ingredients_list$ingredients_clean)%>%
+  str_to_lower()%>%
+  kable()
 ```
 
 ## 4. Number of unique ingredients
@@ -56,7 +90,7 @@ Before opening the bar, you need to find a reliable supplier that has all the in
 How many different ingredients you will need?
 
 ```{r}
-
+kable(n_distinct(cocktails_clean$ingredients_clean))
 ```
 
 ## 5. What are the top 10 ingredients?
@@ -64,6 +98,10 @@ How many different ingredients you will need?
 What are the 10 most frequently used ingredients? If there are ties, you can list more than 10.
 
 ```{r}
+ing_sort <- as.data.frame(sort(table(cocktails_clean$ingredients_clean),decreasing=TRUE))
+
+kable(sort(table(cocktails_clean$ingredients_clean),decreasing=TRUE)[1:tail(which(ing_sort$Freq == unique(ing_sort$Freq)[10]), 1)], col.names = c("ingredients", "frequency"))
+  
 
 ```
 
@@ -72,6 +110,19 @@ What are the 10 most frequently used ingredients? If there are ties, you can lis
 Count the number of ingredients and filter all the cocktails that has that many.
 
 ```{r}
+sort(table(cocktails_clean$name), decreasing=T)
+
+cocktails_n <- cocktails_clean %>%
+     group_by(name) %>%
+     mutate(freq=n())%>%
+     arrange(desc(freq))
+
+unique(cocktails_n$name)
+
+max_ingredients <- cocktails_n %>%
+    filter(freq == max(cocktails_n$freq))
+
+kable(unique(max_ingredients$name))
 
 ```
 
@@ -80,19 +131,31 @@ Count the number of ingredients and filter all the cocktails that has that many.
 Count all cocktails with only one ingredient, and
 
 ```{r}
+sort(table(cocktails_clean$ingredients_clean), decreasing = F)
+ingredients_n <- cocktails_clean %>%
+     group_by(ingredients_clean) %>%
+     mutate(freq=n())%>%
+     arrange(desc(freq))
+
+unique_ingredients <- ingredients_n %>%
+          filter(freq == min(ingredients_n$freq))
+kable(n_distinct(unique_ingredients$name))
 
 ```
 
 ## 8. Which cocktail has an ingredient that is only used in one cocktail?
 
 ```{r}
-
+kable(str_to_lower(unique(unique_ingredients$name)))
 ```
 
 ## 9. What are the cocktails without rare ingredients?
 
 ```{r}
-  
+nonunique_ingredients <- ingredients_n %>%
+     filter(freq > 1)
+kable(unique(nonunique_ingredients $name))
+
 ```
 
 ## 10. Create a cheat sheet for the bartender!
@@ -100,10 +163,9 @@ Count all cocktails with only one ingredient, and
 Create a matrix that shows all cocktail names as rows and all ingredients as columns. When a cocktail requires an ingredient, there should be an "X" in the cell, otherwise, the cell should remain empty. Example:
 
 ```{r}
+print("No idea, sorry...")
 
 ```
-
-```{r}
 
 ```
 

@@ -1,0 +1,320 @@
+---
+title: "Data Analysis"
+author: "Csaba Kertész"
+date: '2021 01 09 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(knitr)
+library(tidyverse)
+library(tidytuesdayR)
+library(funModeling)
+library(Hmisc)
+library(ggpubr)
+library(scales)
+library(RColorBrewer)
+library(viridis)
+library(car)
+library(lm.beta)
+```
+
+# Income gap in Australia
+
+The dataset was downloaded from data.gov.au. It contains data about income in different professions for both genders, published in 2008. In the following analysis I'm trying to explore the best and worst paying occupations for men and women, the wage gap between them, the possible association between yearly income, number of people in the same field and gender. 
+
+
+```{r}
+#importing dataset
+wages <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-04-23/week4_australian_salary.csv")
+wages_tb <- as_tibble(wages)
+
+
+#checking for missing values
+sapply(wages_tb,function(x) sum(is.na(x)))
+
+
+#basic descriptives and plots
+glimpse(wages_tb)
+describe(wages_tb)
+summary(wages_tb)
+plot_num(wages_tb)
+
+wages_tb %>% 
+  ggplot(aes(x=gender, y=average_taxable_income, fill = gender)) +
+  geom_boxplot() + geom_jitter(width=0.1,alpha=0.2)
+
+#adding income range variable
+wages_tb <- wages_tb %>%
+mutate(income_rg = ifelse(wages_tb$average_taxable_income<summary(wages_tb$average_taxable_income)[2], "Low income", ifelse(wages_tb$average_taxable_income>summary(wages_tb$average_taxable_income)[5], "High income", "Average income")))
+
+
+#summarizing variables by gender
+wages_tb %>%
+ filter(gender == "Female")%>%
+  summary()
+
+wages_tb %>%
+ filter(gender == "Male")%>%
+  summary()
+
+
+ 
+#plot 1 - Distribution of income among male and female workers
+wages_tb%>%
+  mutate(income_rg = fct_relevel(income_rg, 
+            "Low income", "Average income", "High income")) %>%
+ggplot(aes(x = gender, fill = income_rg)) +
+    geom_bar(position = "fill") +
+    scale_x_discrete(name = "") +
+  scale_fill_viridis_d()+
+    ylab(label="percentage (%)")+
+    labs(fill = "")+
+    theme_light() +
+    coord_flip()+
+    ggtitle("Distribution of income among genders") 
+
+```
+Missing values, outliers, basic descriptives
+
+There were no missing values in the dataset. Two outliers were identified in the "average taxable income" col. and were decided to be kept. 
+The mean yearly taxable income in Australia was 65.678, with a minimum of 13.307 and a maximum of 577.674 (AUS).
+Exploring income by gender, we found that men altogether earned more. Mean income was 56.109 /75.152, the minimum 16.490/13.307 - and maximum 577.674/355.844.  
+Looking at plot 1, we see that while similar proportion of men and women work in average income jobs, a larger percentage of men work in the high income range, while a higher proportion of women have low income professions.
+```{r}
+
+
+
+#filtering male vs female occupations in order of income
+wages_order_male <- wages_tb %>% 
+      filter(gender == "Male") %>% 
+      arrange(desc(average_taxable_income)) %>% 
+      select(occupation, `Male Average Taxable Income` = average_taxable_income) 
+
+wages_order_male <- wages_order_male %>%
+  rename(male_income = 2)
+
+wages_order_female <- wages_tb %>% 
+      filter(gender == "Female") %>% 
+      arrange(desc(average_taxable_income)) %>% 
+      select(occupation, `Female Average Taxable Income` = average_taxable_income)
+
+wages_order_female <- wages_order_female %>%
+  rename(female_income = 2)
+
+
+#pairing by same occupation, sorted by male income
+occ_by_male  <- wages_order_male %>% 
+      left_join(., wages_order_female , by = "occupation") %>% 
+      arrange(desc(male_income)) 
+
+#adding income range variable
+
+occ_by_male <- occ_by_male %>%
+  mutate(income_rg = ifelse(occ_by_male$male_income<summary(occ_by_male$male_income)[2], "Low income", ifelse(occ_by_male$male_income>summary(occ_by_male$male_income)[5], "High income", "Average income")))
+
+#calculating relative income gap
+occ_by_male <-  occ_by_male %>%
+  mutate(gap = (male_income - female_income)/male_income)
+
+occ_by_male <- occ_by_male %>%
+  mutate(gap_percent = gap * 100)
+
+occ_by_male %>%
+  summary()
+
+female_adv <-  occ_by_male %>%
+  filter(female_income > male_income) 
+  
+female_adv_low <- female_adv %>%
+filter(income_rg == "Low income")
+
+
+#plot2 - Comparing female and male income in the same professions
+
+occ_by_male%>%
+  ggplot(aes(x = male_income , y = female_income, color=income_rg)) + 
+  geom_point() +
+  scale_y_continuous(limits = c(0, 500000), 
+                     name = "Male income (AUS)", labels = function(x) format(x, scientific = FALSE))+
+  scale_x_continuous(limits = c(0, 500000),
+                     name = "Female income (AUS)",labels = function(x) format(x, scientific = FALSE))+
+    theme_light() +
+    geom_abline()+
+    scale_color_viridis_d(name = "")+
+    ggtitle("Female and male yearly income in the same professions") 
+
+
+```
+The GAP
+
+When we compare the income of men and women in the same professions, we see that men earn 19.74% more. The maximum relative wage gap is 83.4% (cricketers) in favor of men, and interestingly we found that there is an extreme value (233.1% for mountaineers), in which case there is a female advantage. 
+
+Looking at plot2, we see that there are very few occupations (81, which is only 7,3% of all) in which women earn more, most of which are in the "low income" range (56, 69%).
+
+
+
+
+```{r}
+
+
+
+ #identifying outliers in gap variable 
+out <- occ_by_male %>%
+  arrange(gap_percent)
+
+
+#removing 5 rows containing outliers
+occ_by_male <-  occ_by_male[-c(1032), ] 
+occ_by_male <-  occ_by_male[-c(821), ] 
+occ_by_male <-  occ_by_male[-c(406), ] 
+occ_by_male <-  occ_by_male[-c(961), ] 
+
+
+
+#checking normality for variables - all 3 variables differ from normal distribution
+shapiro.test(occ_by_male$male_income)
+shapiro.test(occ_by_male$female_income)
+shapiro.test(occ_by_male$gap)
+
+
+cor.test(occ_by_male$male_income, occ_by_male$gap, method = c("s")) 
+
+#plot3 - Correlation between yearly income and wage gap in 3 income categories
+
+occ_by_male %>%
+   mutate(income_rg = fct_relevel(income_rg, 
+            "Low income", "Average income", "High income")) %>%
+ggplot(aes(x=male_income, y=gap_percent, color = income_rg)) +
+  theme_light() +
+  geom_point(size =0.5) +
+scale_y_continuous(name = "Wage gap in percent", labels = function(x) format(x, scientific = FALSE))+
+  scale_x_continuous(name = "Yearly male income (AUS)",labels = function(x) format(x, scientific = FALSE))+
+  scale_color_viridis_d(name = "")+
+  geom_smooth(method=lm)+
+  stat_cor(method = "spearman")+
+  ggtitle("Correlation between yearly income and wage gap")
+
+
+```
+The correlation between wage gap and income 
+
+Our hypothesis was that the relative wage gap widens as income grows. To test our hypothesis we calculated Spearman correlation  for the two variables and found that there is in fact a positive association (rho =0.4978624 , p = 2.2e-16) between them.
+
+Plot3 also shows that the correlation between income and the wage gap persists in each income category with a weak association in the average income range, and moderate (R = 0.42) in the "high" and "low" categories.
+```{r}
+
+
+#BUILDING MODEL to predict income with gender and individuals variables
+
+
+#testing normality of target variable
+
+shapiro.test(wages_tb$average_taxable_income)
+
+
+#normalizing target variable with z-transformation
+
+normalize = function(x){
+  return(((x - min(x, na.rm = TRUE))/(max(x, na.rm = TRUE))))
+}
+      
+wages_tb <- wages_tb %>%
+  mutate(income_norm = normalize(average_taxable_income))
+
+
+#identifying some fields among occupations for later analyses
+
+scientist=wages_tb[grep("scien",wages_tb$occupation),] 
+engineer=wages_tb[grep("engineer",wages_tb$occupation),]
+worker=wages_tb[grep("worker",wages_tb$occupation),]
+nurse=wages_tb[grep("nurse",wages_tb$occupation),]
+surgeon=wages_tb[grep("surgeon",wages_tb$occupation),]
+cook=wages_tb[grep("cook",wages_tb$occupation),]
+
+scientific <- scientist %>%
+  mutate(field = "science")
+
+engineer <- engineer %>%
+  mutate(field = "engineer")
+
+worker <- worker %>%
+  mutate(field = "worker")
+
+nurse <- nurse %>%
+  mutate(field = "nurse")
+
+surgeon <- surgeon %>%
+  mutate(field = "surgeon")
+
+cook <- cook %>%
+  mutate(field = "cook")
+
+
+wages_tb_field <-  rbind(cook, worker, surgeon, nurse, scientific, engineer)
+
+wages_tb_field %>%
+ggplot(aes(x = field, y = average_taxable_income, fill = gender)) + geom_col(position = position_dodge(width = 0.8), width = 0.7)+ 
+  scale_fill_manual(values = c("darkseagreen", "firebrick2", "darkseagreen4")) + theme(axis.text.x = element_text(size = 10, angle = 45)) +
+  scale_y_continuous(name = "Average taxable icnome (AUS)", labels = function(x) format(x, scientific = FALSE))+
+  scale_x_discrete(name = "",labels = function(x) format(x, scientific = FALSE))+
+  theme_light() +
+  ggtitle("Average yearly income by fields and gender") 
+
+
+#Building linear model for the whole dataset
+
+model_1 <- lm(income_norm ~ gender , data = wages_tb)
+summary(model)
+
+model_1 %>☺%
+  summary() %>%
+  plot(2)
+
+model_2 <- lm(income_norm ~ gender + individuals, data = wages_tb)
+summary(model)
+
+
+```
+Building a model for predicting income
+
+
+```{r}
+#Building linear model for the subset dataset
+model_3 <- lm(income_norm ~ gender + field + individuals, data = wages_tb_field)
+summary(model_3)
+
+model_3 %>%
+  plot(5)
+
+model_3 %>%
+  plot(2)
+
+model_3 %>%
+  plot(1)
+
+model_3 %>%
+  plot(3)
+
+#removing outliers
+
+wages_tb_field <- wages_tb_field[-c(131, 132, 136, 139, 135, 244, 282, 288),]
+
+model_3 <- lm(income_norm ~ gender + field + individuals, data = wages_tb_field)
+summary(model_3)
+
+model_3 %>%
+  vif()
+
+model_3 %>%
+lm.beta()
+
+model_3 %>%
+coef()
+
+model_3 %>%
+confint(level = 0.95)
+
+
+```
