@@ -263,7 +263,7 @@ The updated complex model explained 28,47% of the variance. Comparing standardiz
 This final model which included the "mindfulness" variable showed improvement compared to the first one.
 Adjusted R-squared:  0.2847 
 F-statistic: 15.93 on 4 and 146 DF,  p-value: 7.685e-11
-Equation: y =  5.63803 + -0.09609  * x1 + 0.36218 * x2 + 0.09790 * x3 + -0.26248  * x4
+Equation: y =  5.63803 + -0.09609 * x1 + 0.36218 * x2 + 0.09790 * x3 + -0.26248  * x4
 
 
 
